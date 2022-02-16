@@ -5,5 +5,5 @@ Version de python minimum : 3.8
 
 Packages : tkinter, numpy, scipy
 
-
+/n
 Projet réalisé en 10 jours par Wandrille Legras, Lucas Desilles, Nicolas Charpentier, Paul Cascarino, Adrien Lindeberg et Flore Mugnier
