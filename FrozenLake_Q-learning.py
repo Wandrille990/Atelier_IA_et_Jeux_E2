@@ -81,7 +81,6 @@ Window.title("Frozen Lake")
 
 LastKey = '0'
 
-
 def keydown(e):
     global LastKey
     if hasattr(e,'char') and e.char in Keys:
@@ -118,8 +117,8 @@ Frame0 = CreerUnePage(0)
 canvas = tk.Canvas(Frame0,width = largeurPix, height = hauteurPix, bg ="black" )
 canvas.place(x=0,y=0)
 
-#   Dessine la grille de jeu - ne pas toucher
 
+#   Dessine la grille de jeu - ne pas toucher
 
 def Affiche(Game):
     canvas.delete("all")
@@ -153,14 +152,12 @@ def Affiche(Game):
 #
 ################################################################################
 
-
 class Game:
 
     def __init__(self):
         self.Grille = GInit
         self.Score = 0
         self.Reset()
-
 
     def Reset(self):
         self.PlayerPos = [0,HAUTEUR-1]
@@ -169,7 +166,6 @@ class Game:
     def is_finished(self):# fin de la partie quand l'agent va sur la valeur -1
         xP,yP = self.PlayerPos
         return self.Grille[xP][yP] == 1 or self.Grille[xP][yP] == 8
-
 
 
     def Doo(self, action):
@@ -187,12 +183,10 @@ class Game:
         P[(action * 2 - 1) % 8] = v
         P[ action * 2         ] = v
         P[(action * 2 + 1) % 8] = v
-        #print("P : {}".format(P))
 
 
         # plus on se rapproche de l'objectif, plus ca glisse
         for i in range(8) : P[i] += LARGEUR-self.PlayerPos[0] + (HAUTEUR-self.PlayerPos[1])
-        #print("P : {}".format(P))
 
         # gestion des murs
         if self.PlayerPos[0] == 0 :           P[7] = P[0] = P[1] = 0 # mur gauche
@@ -209,8 +203,6 @@ class Game:
         while P[choix] < rd :
             rd -= P[choix]
             choix += 1
-        #print("rd : {}".format(rd))
-        #print("choix : {}".format(choix))
 
         #traduction 0-7 => déplacement
         if choix in [7,0,1] : self.PlayerPos[0] -= 1
@@ -222,11 +214,9 @@ class Game:
 
         xP,yP = self.PlayerPos
         if self.Grille[xP][yP] == 1 :   # DEAD
-            #self.Reset()
             return self.PlayerPos[1]*13+self.PlayerPos[0], -100
 
         if self.Grille[xP][yP] == 8 :   # WIN
-            #self.Reset()
             return self.PlayerPos[1]*13+self.PlayerPos[0], 100
 
         return self.PlayerPos[1]*13+self.PlayerPos[0]   , 0
@@ -236,47 +226,6 @@ class Game:
         reward = self.Doo(action)
         self.Score += reward
         return reward
-
-
-###########################################################
-#
-#   découvrez le jeu en jouant au clavier
-#
-###########################################################
-
-#G = Game()
-
-def JeuClavier():
-    F.focus_force()
-
-    global LastKey
-
-    r = 0 # reward
-    if LastKey != '0' :
-        if LastKey == Keys[0] : G.Do(0)
-        if LastKey == Keys[1] : G.Do(1)
-        if LastKey == Keys[2] : G.Do(2)
-        if LastKey == Keys[3] : G.Do(3)
-
-    Affiche(G)
-    LastKey = '0'
-    Window.after(500,JeuClavier)
-
-
-###########################################################
-#
-#  simulateur de partie aléatoire
-#
-###########################################################
-
-def SimulGame():   # il n y a pas de notion de "fin de partie"
-    G = Game()
-    reward = 0
-    for i in range(100):
-       action = random.randrange(0,4)
-       reward += G.Do(action)
-    return reward
-
 
 ###########################################################
 #
@@ -297,14 +246,12 @@ def take_action(spt, Q, eps):
             for i in range(4):
                 softmax.append(math.exp(Q[spt][i])/
                 (math.exp(Q[spt][0]) + math.exp(Q[spt][1]) + math.exp(Q[spt][2]) + math.exp(Q[spt][3])))
-            #print(softmax)
-            #time.sleep(0.3)
             action = np.random.choice(np.arange(0, 4), p=softmax)
             #action = np.argmax(Q[spt])
     return action  # return at
 
 
-def JustePourQueLaffichageMarche():
+def step():
     global G, spt, Q, epsilon, rep, nb, go
 
     if nb <= rep:
@@ -328,10 +275,6 @@ def JustePourQueLaffichageMarche():
 
 
     if G.is_finished():
-        #if G.Grille[G.PlayerPos[0]][G.PlayerPos[1]] == 8:
-        #    print("WIN")
-        #print("{} = {}".format("Epsilon", epsilon))
-
         if (nb) % 1000 == 0 or nb > rep-2:
             print("{} sur {}".format(nb, rep))  # avancement de l'entraînement
             print("{} = {}".format("Epsilon", epsilon))  # évolution d'epsilon
@@ -340,11 +283,7 @@ def JustePourQueLaffichageMarche():
                     aff = Q[i:i+13]
                     print(aff)
 
-        #epsilon = max(epsilon * (1 - 1 / (rep / 3)), 0.01)
-        # Décroissant logarithmiquement, plus lent mais meilleur score
         epsilon = max(epsilon - (1 / (rep/1.1)), 0.01)
-        # Décroissant linéairement, plus rapide mais légèrement moins bon score
-        # Rapport score/temps meilleurs avec une décroissance linéaire
 
         G.Reset()
         nb += 1
@@ -355,9 +294,9 @@ def JustePourQueLaffichageMarche():
                 go = True
 
     if go:
-        Window.after(50,JustePourQueLaffichageMarche)
+        Window.after(50,step)
     else:
-        Window.after(1,JustePourQueLaffichageMarche)
+        Window.after(1,step)
 
 
 #####################################################################################
@@ -372,77 +311,10 @@ epsilon = 1  # probabilité que l'agent prenne une action aléatoirement
 go = False
 
 Q = [[0, 0, 0, 0] for y in range(LARGEUR*HAUTEUR+1)]
-#for i in range(LARGEUR*HAUTEUR-13, -1, -13):
-#    aff = Q[i:i+13]
-#    print(aff)
 
 spt = G.Reset()
 
 AfficherPage(0)
 
-#Window.after(500,JeuClavier)
-#Window.after(500,SimulGame)
-Window.after(1, JustePourQueLaffichageMarche)
+Window.after(1, step)
 Window.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Data = [   [0,0,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,1,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,0,0,0,0,1,0,0],
-#            [0,0,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,0,0,0,1,0,0,0],
-#            [0,0,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,1,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,1,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,0,0,0,0,0,0,0],
-#            [0,0,0,0,0,0,1,0,0,0,8,8,8],
-#            [0,1,0,0,0,0,0,0,0,0,8,8,8],
-#            [0,0,0,0,0,0,0,0,0,0,8,8,8]]
-#
-#
-# LARGEUR = 13
-# HAUTEUR = 17
-#
-# #GInit  = np.array(Data)
-# #GInit  = np.flip(GInit,0).transpose()
-#
-# Q = [[y, y, y, y] for y in range(LARGEUR*HAUTEUR)]
-#
-# print("-")
-# print(Q)
-# print("-")
-#
-# print("")
-#
-# #for y in range(HAUTEUR):
-# #  print("")
-# #  for x in range(LARGEUR):
-# #    print("Q[{}] = {}".format(y*13+x, Data[y][x]))
-#
-#
-# #for i in range(LARGEUR):
-# #  aff = Q[i::17]
-# #  print(aff)
-#
-# for i in range(LARGEUR*HAUTEUR-13, -1, -13):
-#   aff = Q[i:i+13]
-#   print(aff)
-#
-# print("oui")
-
