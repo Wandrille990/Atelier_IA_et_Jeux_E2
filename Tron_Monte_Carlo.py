@@ -55,7 +55,6 @@ L = 20  # largeur d'une case du jeu en pixel
 largeurPix = LARGEUR * L
 hauteurPix = HAUTEUR * L
 
-
 Window = tk.Tk()
 Window.geometry(str(largeurPix)+"x"+str(hauteurPix))   # taille de la fenetre
 Window.title("TRON")
@@ -89,8 +88,8 @@ Frame0 = CreerUnePage(0)
 canvas = tk.Canvas(Frame0,width = largeurPix, height = hauteurPix, bg ="black" )
 canvas.place(x=0,y=0)
 
-#   Dessine la grille de jeu - ne pas toucher
 
+#   Dessine la grille de jeu - ne pas toucher
 
 def Affiche(Game):
     canvas.delete("all")
@@ -120,8 +119,6 @@ def AfficheScore(Game):
 ###########################################################
 #
 # gestion du joueur IA
-
-# VOTRE CODE ICI
 
 # Liste des directions :
 # 0 : sur place   1: à gauche  2 : en haut   3: à droite    4: en bas
@@ -294,11 +291,3 @@ def Partie():
 AfficherPage(0)
 Window.after(100,Partie)
 Window.mainloop()
-
-
-
-
-
-
-
-
