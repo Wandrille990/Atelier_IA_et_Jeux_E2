@@ -6,7 +6,7 @@ import time
 from scipy import signal
 from math import dist
 from win32api import GetSystemMetrics
-from maps import choose_level
+from tron_advenced_maps import choose_level
 
 ################################################################################
 
