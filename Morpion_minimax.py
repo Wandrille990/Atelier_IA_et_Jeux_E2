@@ -270,12 +270,3 @@ canvas.bind('<ButtonPress-1>',    MouseClick)
 AfficherPage(0)
 Dessine()
 Window.mainloop()
-
-
-
-    
-        
-
-      
- 
-
